@@ -2,51 +2,157 @@
 title: "Spotify Top Hits of 1970-2019"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: columns
+    #orientation: rows
     vertical_layout: fill
 ---
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+#require(shinydashboard)
+#require(shiny)
+library(plotly)
+library(dplyr)
+library(readr)
+library(lubridate)
 ```
 
-General
-==============
+```{r, include=FALSE}
+# Data
+topHits.df <- read_csv("./data/Spotify_TopHits_of_1970_2019.csv")
+```
 
-Column {data-width=650}
+
+General {data-orientation=rows}
+============================
+
+Column {data-height=250}
 -----------------------------------------------------------------------
 
-### Chart A
+<!-- ### **Promedios** {data-width=200}
+
+Estos KPI son los promedios de Loudness y Valence a lo largo de los años 1970 a 2019.
+-->
+
+### **Loudness Promedio**
 
 ```{r}
 
+gauge(
+  value = round( mean(topHits.df$loudness), 2),
+  min = round(min(topHits.df$loudness)),
+  max = round(max(topHits.df$loudness)) + 5,
+  sectors = gaugeSectors(
+               success = NULL,
+               warning = NULL,
+               danger = NULL,
+               colors = c("success", "warning", "danger")),
+  symbol = " dB",
+  label = NULL,
+  abbreviate = TRUE,
+  abbreviateDecimals = NULL,
+  href = NULL
+)
+
 ```
 
-Column {data-width=350}
+> Promedio de 1970 a 2019.
+
+### **Valencia Promedio**
+
+```{r}
+
+gauge(
+  value = round( mean(topHits.df$valence), 2),
+  min = 0,
+  max = 1,
+  sectors = gaugeSectors(
+               success = NULL,
+               warning = NULL,
+               danger = NULL,
+               colors = c("success", "warning", "danger")),
+  symbol = NULL,
+  label = NULL,
+  abbreviate = TRUE,
+  abbreviateDecimals = NULL,
+  href = NULL
+)
+
+```
+
+> Promedio de 1970 a 2019.
+
+Column {data-height=750}
 -----------------------------------------------------------------------
 
-### Chart B
+### **Promedio de Loudness**
+
+```{r}
+# data for the averages
+
+years.loudness.avg <- topHits.df %>% 
+  mutate(playlist_name = as.character( parse_number(playlist_name) )) %>%
+  group_by(playlist_name) %>% summarise(avg = mean(loudness))
+
+# data for tooltip displaying
+years.popular.songs <- topHits.df %>% arrange(desc(track.popularity)) %>% 
+  select(track.popularity, track.name, track.preview_url)
+
+# loudness average time series
+fig.1 <- plot_ly(data = years.loudness.avg, x = ~ playlist_name, y = ~ avg,
+                 type = "scatter",
+                 mode = "lines+markers+text",
+                 hovertemplate = paste('hover 1',
+                        '<br>hover 2<br>',
+                        '<b>hover 3</b>')
+                 ) 
+fig.1
+
+
+```
+> Promedio de LOUDNESS por cada año, desde 1970 hasta 2019.
+
+### **Promedio de Valence**
 
 ```{r}
 
+years.valence.avg <- topHits.df %>% 
+  mutate(playlist_name = as.character( parse_number(playlist_name) )) %>%
+  group_by(playlist_name) %>% summarise(avg = mean(valence))
+
+  
+fig.2 <- plot_ly(data = years.valence.avg, x = ~ playlist_name, y = ~ avg,
+                 type = "scatter",
+                 mode = "lines+markers+text",
+                 hovertemplate = paste('hover 1',
+                        '<br>hover 2<br>',
+                        '<b>hover 3</b>')
+                 ) 
+
+fig.2
 ```
+  
+> Promedio de VALENCE por cada año, desde 1970 hasta 2019.
 
-### Chart C
+  
+Por año {data-orientation=rows}
+============================
 
-```{r}
+Column {data-width=500}
+----------------------------
 
-```
+### chart 1
 
 
-Por año
-==============
+Column {data-width=500}
+----------------------------------------------
 
+### Chart 2
 
 
 Escalas
-==============
+============================
 
 
 
 Licencia
-==============
+============================
