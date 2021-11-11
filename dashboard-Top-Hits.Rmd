@@ -2,14 +2,16 @@
 title: "Spotify Top Hits of 1970-2019"
 output: 
   flexdashboard::flex_dashboard:
+    theme: cosmo
     #orientation: rows
     vertical_layout: fill
+    social: [ "twitter", "facebook", "menu" ]
+runtime: shiny    
 ---
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
-#require(shinydashboard)
-#require(shiny)
+require(shiny)
 library(plotly)
 library(dplyr)
 library(readr)
@@ -19,6 +21,10 @@ library(lubridate)
 ```{r, include=FALSE}
 # Data
 topHits.df <- read_csv("./data/Spotify_TopHits_of_1970_2019.csv")
+
+# Dashboard and data dates
+dashboard.year <- 2021
+data.download.date <- as.Date("2021/10/31", "%Y/%m/%d")
 ```
 
 
@@ -101,11 +107,14 @@ years.popular.songs <- topHits.df %>% arrange(desc(track.popularity)) %>%
 fig.1 <- plot_ly(data = years.loudness.avg, x = ~ playlist_name, y = ~ avg,
                  type = "scatter",
                  mode = "lines+markers+text",
-                 hovertemplate = paste('hover 1',
-                        '<br>hover 2<br>',
-                        '<b>hover 3</b>')
+                 hovertemplate = paste('Año: %{x}',
+                        '<br>Promedio: %{y}<br>',
+                        '<b>hover 3</b><extra></extra>')
                  ) 
-fig.1
+fig.1 %>% 
+  plotly::layout(title = "",
+         xaxis = list(title = "Años"),
+         yaxis = list (title = "Loudness"))
 
 
 ```
@@ -115,20 +124,26 @@ fig.1
 
 ```{r}
 
+# data for the averages
 years.valence.avg <- topHits.df %>% 
   mutate(playlist_name = as.character( parse_number(playlist_name) )) %>%
   group_by(playlist_name) %>% summarise(avg = mean(valence))
 
-  
+# valence average time series  
 fig.2 <- plot_ly(data = years.valence.avg, x = ~ playlist_name, y = ~ avg,
                  type = "scatter",
                  mode = "lines+markers+text",
                  hovertemplate = paste('hover 1',
                         '<br>hover 2<br>',
-                        '<b>hover 3</b>')
+                        '<b>hover 3</b><extra></extra>')
                  ) 
 
-fig.2
+fig.2 %>% 
+  plotly::layout(title = "",
+         xaxis = list(title = "Años"),
+         yaxis = list (title = "Valencia"))
+
+
 ```
   
 > Promedio de VALENCE por cada año, desde 1970 hasta 2019.
@@ -137,22 +152,224 @@ fig.2
 Por año {data-orientation=rows}
 ============================
 
-Column {data-width=500}
+Column {data-width=200 .sidebar}
 ----------------------------
 
-### chart 1
+```{r}
+sliderInput("year", label = "Selecciona el año:",
+            min = 1970, max = 2019, value = 1984, step = 1)
+
+# a reactive dataframe
+reactive.Hits.year <- reactive(
+  topHits.df %>% 
+  mutate(playlist_name = as.character( parse_number(playlist_name) )) %>%
+  filter(playlist_name == input$year) %>%
+  arrange(desc(track.popularity)) 
+)
+
+```
 
 
-Column {data-width=500}
-----------------------------------------------
+Column {data-height=250}  
+----------------------------
+### **Loudness Promedio** {data-width=500}
 
-### Chart 2
+```{r}
+
+renderGauge(
+gauge(
+  value = round( mean(reactive.Hits.year()$loudness), 2),
+  min = round(min(reactive.Hits.year()$loudness)),
+  max = round(max(reactive.Hits.year()$loudness)) + 5,
+  sectors = gaugeSectors(
+               success = NULL,
+               warning = NULL,
+               danger = NULL,
+               colors = c("success", "warning", "danger")),
+  symbol = " dB",
+  label = NULL,
+  abbreviate = TRUE,
+  abbreviateDecimals = NULL,
+  href = NULL
+)
+)
+```
+
+### **Valencia Promedio** {data-width=500}
+
+```{r}
+
+renderGauge(
+gauge(
+  value = round( mean(reactive.Hits.year()$valence), 2),
+  min = 0,
+  max = 1,
+  sectors = gaugeSectors(
+               success = NULL,
+               warning = NULL,
+               danger = NULL,
+               colors = c("success", "warning", "danger")),
+  symbol = "",
+  label = NULL,
+  abbreviate = TRUE,
+  abbreviateDecimals = NULL,
+  href = NULL
+)
+)
+
+```
+
+Column {data-height=450}  
+----------------------------
+
+### **Características del audio** {data-width=500}
+
+```{r}
+renderPlotly(
+plot_ly(data = reactive.Hits.year(),
+    type = 'scatterpolar',
+    r = c(mean(reactive.Hits.year()$danceability), 
+          mean(reactive.Hits.year()$energy), 
+          mean(reactive.Hits.year()$liveness), 
+          mean(reactive.Hits.year()$acousticness), 
+          mean(reactive.Hits.year()$instrumentalness), 
+          mean(reactive.Hits.year()$danceability)),
+    theta = c('Danceability','Energy',
+              'Liveness', 'Acousticness',
+              'Instrumentalness', 'Danceability'),
+    fill = 'toself'
+  )  %>%
+  layout(
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,1)
+      )
+    ),
+    showlegend = F
+  )
+)
+```
+
+> Promedio de cada característica.
+
+### **Canciones más populares** {data-width=500}
+
+```{r}
+
+renderPlotly(
+  reactive.Hits.year() %>%
+    arrange(desc(track.popularity)) %>% 
+    slice(1:7) %>%
+  plot_ly(
+  x = ~track.popularity,
+  y = ~reorder(track.name,track.popularity),
+  text = ~track.popularity,
+  textposition = 'auto',
+  hovertemplate = paste('<b>Canción</b>: %{y}',
+                        '<br><b>Popularidad:</b>: %{x}<br>',
+                        '<b>Artista:%{text}</b>'),
+  name = "",
+  type = "bar", 
+  orientation = "h"
+) %>%
+  plotly::layout(
+    yaxis = list(title = "", zeroline = FALSE, showline = TRUE, 
+                 showticklabels = TRUE, showgrid = FALSE,
+                 fixedrange = TRUE),
+    xaxis = list(title = "", zeroline = FALSE, showline = FALSE, 
+                 showticklabels = FALSE, showgrid = FALSE,
+                 fixedrange = TRUE),
+    margin = list( l = 10, r = 10, b = 10, t = 10, pad = 2)) %>%
+  plotly::layout(
+        showlegend = FALSE
+  ) %>%
+  plotly::config(
+    displaylogo = FALSE,
+    modeBarButtonsToRemove = list(
+      'sendDataToCloud','zoom2d','pan2d', 'select2d', 'lasso2d',
+      'zoomIn2d', 'zoomOut2d',
+      #'toImage',
+      'autoScale2d', 'resetScale2d', 'hoverClosestCartesian',
+      'hoverCompareCartesian', 'toggleSpikelines'))
 
 
-Escalas
-============================
+)
+```
+
+> Canciones ordenadas por popularidad. Nótese que la popularidad es medida respecto a la fecha `r data.download.date` y no en el año original de la canción.
+
+Column {data-height=300 .tabset .tabset-fade}  
+-------------------------------
+
+### **Duración en minutos**
+
+```{r}
+renderPlotly(
+  reactive.Hits.year() %>% 
+    mutate(track.duration_min = (track.duration_ms)/(1000*60)) %>%
+  plot_ly(
+  x = ~track.duration_min,
+  name = "",
+  type = "box"
+) %>% 
+  plotly::layout(title = "",
+         xaxis = list(title = "Minutos")
+         ) %>%
+  plotly::layout(
+        showlegend = FALSE
+  )
+
+
+)
+```
+
+### **Beats por minuto (BPM)**
+
+```{r}
+renderPlotly(
+  reactive.Hits.year() %>% 
+  plot_ly(
+  x = ~tempo,
+  name = "",
+  type = "box"
+) %>% 
+  plotly::layout(title = "",
+         xaxis = list(title = "BPM")
+         ) %>%
+  plotly::layout(
+        showlegend = FALSE
+  )
+
+
+)
+```
 
 
 
 Licencia
 ============================
+
+Información
+============================
+**Datos**
+
+Los datos se obtuvieron de la API de Spotify, mediante código R usando el Wrapper [Spotifyr](https://www.rcharlie.com/spotifyr/). Se descargaron a la fecha (año/mes/día) `r data.download.date`.
+
+Dicho código puede consultarse en este [repositorio de GitHub](https://github.com/hugojira/TopHits1970-2019). Es replicable para descargarse de nuevo, o bien se puede tomar el conjunto de datos del repositorio para hacer un análisis propio.
+
+**Características de audio y unidades**
+
+Las características de audio usadas en este Dashboard son las siguientes:
+
+- **Loudness:** Está medida en la escala completa de decibeles (dBFS), lo que indica qué tan amplificado está el audio. Los valores normales son abajo de 0, de lo contrario ocurre saturación y distorsión en el audio.
+- **Acousticness:**
+- **Danceability:**
+- **Energy:**
+- **Instrumentalness:**
+- **Liveness:**
+- **Valence:**
+
+
+
+
