@@ -6,6 +6,9 @@ output:
     #orientation: rows
     vertical_layout: fill
     social: [ "menu" ]
+    navbar:
+      - { icon: "fa-twitter", href: "https://twitter.com/varcharHugo", align: right , target: "_blank"}
+      - {icon: "fa-medium", href: "https://hugojira.medium.com" ,align: right, target: "_blank"}
 runtime: shiny    
 ---
 
