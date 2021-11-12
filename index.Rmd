@@ -128,7 +128,7 @@ fig.1 <- plot_ly(data = years.loudness.avg, x = ~ playlist_name, y = ~ avg,
 fig.1 %>% 
   plotly::layout(title = "",
          xaxis = list(title = "Años"),
-         yaxis = list (title = "Loudness (dBFS)"))
+         yaxis = list (title = paste(loudness.es, "(dBFS)")))
 
 
 ```
@@ -155,7 +155,7 @@ fig.2 <- plot_ly(data = years.valence.avg, x = ~ playlist_name, y = ~ avg,
 fig.2 %>% 
   plotly::layout(title = "",
          xaxis = list(title = "Años"),
-         yaxis = list (title = "Valence"))
+         yaxis = list (title = valence.es))
 
 
 ```
