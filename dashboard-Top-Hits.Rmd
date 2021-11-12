@@ -5,7 +5,7 @@ output:
     theme: cosmo
     #orientation: rows
     vertical_layout: fill
-    social: [ "twitter", "facebook", "menu" ]
+    social: [ "menu" ]
 runtime: shiny    
 ---
 
@@ -16,6 +16,7 @@ library(plotly)
 library(dplyr)
 library(readr)
 library(lubridate)
+library(DT)
 ```
 
 ```{r, include=FALSE}
@@ -63,7 +64,7 @@ gauge(
 
 > Promedio de 1970 a 2019.
 
-### **Valencia Promedio**
+### **Valence Promedio**
 
 ```{r}
 
@@ -114,11 +115,11 @@ fig.1 <- plot_ly(data = years.loudness.avg, x = ~ playlist_name, y = ~ avg,
 fig.1 %>% 
   plotly::layout(title = "",
          xaxis = list(title = "Años"),
-         yaxis = list (title = "Loudness"))
+         yaxis = list (title = "Loudness (dBFS)"))
 
 
 ```
-> Promedio de LOUDNESS por cada año, desde 1970 hasta 2019.
+> Promedio de loudness por cada año, desde 1970 hasta 2019.
 
 ### **Promedio de Valence**
 
@@ -146,7 +147,7 @@ fig.2 %>%
 
 ```
   
-> Promedio de VALENCE por cada año, desde 1970 hasta 2019.
+> Promedio de valence por cada año, desde 1970 hasta 2019.
 
   
 Por año {data-orientation=rows}
@@ -195,7 +196,7 @@ gauge(
 )
 ```
 
-### **Valencia Promedio** {data-width=500}
+### **Valence Promedio** {data-width=500}
 
 ```{r}
 
@@ -347,29 +348,56 @@ renderPlotly(
 
 
 
-Licencia
-============================
-
-Información
+Acerca De
 ============================
 **Datos**
 
-Los datos se obtuvieron de la API de Spotify, mediante código R usando el Wrapper [Spotifyr](https://www.rcharlie.com/spotifyr/). Se descargaron a la fecha (año/mes/día) `r data.download.date`.
+En este dashboard se utilizan características de audio de canciones, las cuales provienen de las playlists de Spotify de la forma "Top Hits of AAAA", donde AAAA es el año. La intensión es ver cómo fueron cambiando dichas propiedades desde el año 1970 hasta el 2019.
 
-Dicho código puede consultarse en este [repositorio de GitHub](https://github.com/hugojira/TopHits1970-2019). Es replicable para descargarse de nuevo, o bien se puede tomar el conjunto de datos del repositorio para hacer un análisis propio.
+Los datos se obtuvieron de la [API de Spotify](https://developer.spotify.com/documentation/web-api/), mediante código R usando el Wrapper [Spotifyr](https://www.rcharlie.com/spotifyr/). Se descargaron a la fecha (año/mes/día) `r data.download.date`.
+
+Dicho código puede consultarse en este [repositorio de GitHub](https://github.com/hugojira/TopHits1970-2019) así como más información sobre la estructura de los datos. Es replicable para descargar los datos de nuevo.
 
 **Características de audio y unidades**
 
 Las características de audio usadas en este Dashboard son las siguientes:
 
-- **Loudness:** Está medida en la escala completa de decibeles (dBFS), lo que indica qué tan amplificado está el audio. Los valores normales son abajo de 0, de lo contrario ocurre saturación y distorsión en el audio.
-- **Acousticness:**
-- **Danceability:**
-- **Energy:**
-- **Instrumentalness:**
-- **Liveness:**
-- **Valence:**
+- **Loudness:** Está medida en decibelios relativos a escala completa (dBFS), lo que indica qué tan amplificado está el audio. Los valores normales son abajo de 0, de lo contrario suele ocurrir saturación y distorsión en el audio.
 
+Las siguientes están entre 0 y 1
 
+- **Acousticness:** Intervalo que muestra qué tan acústica es una canción, valores cercanos a 0 es poco mientras que cercanos a 1 es mucho.
+- **Danceability:** Indicador calculado en base a propiedades como el tempo, estabilidad del ritmo, regularidad. Cercano a 0 indica que la canción es poco bailable mientras que cercano a 1 lo es mucho.
+- **Energy:** Intervalo que muestra qué tan energética se siente una canción, basado en propiedades como rango dinámico o el timbre. El valor cercano a 0 se asocia a canciones no muy ruidosas, mientras que cercano a 1 es ruidosa.
+- **Instrumentalness:** Indica si una canción sea instrumental, es decir si el valor es cercano a 1 es muy probable que sea instrumental mientras que cercano a 0 debe tener mucho contenido cantado.
+- **Liveness:** Indicador que se calcula en base a la detección de audiencia en la canción, si es cercano a 1 es muy probable que la grabación fue hecha en vivo.
+- **Valence:** Medida que representa la sencación de positivo o negativo de una canción. Un valor cercano a 1 indica un sonido positivo (alegre, animador) mientras que cercano a 0 se asocia a un sonido más negativo (deprimente, furioso).
 
+Estas y otras características de audio pueden consultarse con más detalle en la [documentación de la API Web de Spotify](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features).
+
+---
+
+DISCLAIMER: La autoría y crédito de los datos son de Spotify y sus respectivos dueños. Aquí simplemente se hizo un Análisis Exploratorio, a los datos consultados de la API Web de Spotify, con propósitos ilustrativos y didácticos.
+
+MIT License
+
+Copyright (c) `r dashboard.year` Hugo Valenzuela
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
