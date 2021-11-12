@@ -120,7 +120,7 @@ fig.1 <- plot_ly(data = years.loudness.avg, x = ~ playlist_name, y = ~ avg,
                  type = "scatter",
                  mode = "lines+markers+text",
                  hovertemplate = paste('Año: %{x}',
-                        '<br>Promedio: %{y}<br>',
+                        '<br>Promedio: %{y} dBFS<br>',
                         '<extra></extra>')
                  ) 
 fig.1 %>% 
