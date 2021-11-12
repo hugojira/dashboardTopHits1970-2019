@@ -28,6 +28,15 @@ topHits.df <- read_csv("./data/Spotify_TopHits_of_1970_2019.csv")
 # Dashboard and data dates
 dashboard.year <- 2021
 data.download.date <- as.Date("2021/10/31", "%Y/%m/%d")
+
+# Translations to spanish
+loudness.es <- "Sonoridad"
+acousticness.es <- "Acústica"
+danceability.es <- "Bailable"
+energy.es <- "Energía"
+liveness.es <- "En vivo"
+instrumentalness.es <- "Instrumentación"
+valence.es <- "Valencia"
 ```
 
 
@@ -42,7 +51,7 @@ Column {data-height=250}
 Estos KPI son los promedios de Loudness y Valence a lo largo de los años 1970 a 2019.
 -->
 
-### **Loudness Promedio**
+### **`r loudness.es` Promedio**
 
 ```{r}
 
@@ -66,7 +75,7 @@ gauge(
 
 > Promedio de 1970 a 2019.
 
-### **Valence Promedio**
+### **`r valence.es` Promedio**
 
 ```{r}
 
@@ -93,7 +102,7 @@ gauge(
 Column {data-height=750}
 -----------------------------------------------------------------------
 
-### **Promedio de Loudness**
+### **Promedio de `r loudness.es`**
 
 ```{r}
 # data for the averages
@@ -121,9 +130,9 @@ fig.1 %>%
 
 
 ```
-> Promedio de loudness por cada año, desde 1970 hasta 2019.
+> Promedio de `r loudness.es` por cada año, desde 1970 hasta 2019.
 
-### **Promedio de Valence**
+### **Promedio de `r valence.es`**
 
 ```{r}
 
@@ -149,7 +158,7 @@ fig.2 %>%
 
 ```
   
-> Promedio de valence por cada año, desde 1970 hasta 2019.
+> Promedio de `r valence.es` por cada año, desde 1970 hasta 2019.
 
   
 Por año {data-orientation=rows}
@@ -176,7 +185,7 @@ reactive.Hits.year <- reactive(
 
 Column {data-height=250}  
 ----------------------------
-### **Loudness Promedio** {data-width=500}
+### **`r loudness.es` Promedio** {data-width=500}
 
 ```{r}
 
@@ -199,7 +208,7 @@ gauge(
 )
 ```
 
-### **Valence Promedio** {data-width=500}
+### **`r valence.es` Promedio** {data-width=500}
 
 ```{r}
 
@@ -238,9 +247,9 @@ plot_ly(data = reactive.Hits.year(),
           mean(reactive.Hits.year()$acousticness), 
           mean(reactive.Hits.year()$instrumentalness), 
           mean(reactive.Hits.year()$danceability)),
-    theta = c('Danceability','Energy',
-              'Liveness', 'Acousticness',
-              'Instrumentalness', 'Danceability'),
+    theta = c(danceability.es, energy.es,
+              liveness.es, acousticness.es,
+              instrumentalness.es, danceability.es),
     fill = 'toself'
   )  %>%
   layout(
@@ -365,24 +374,26 @@ Dicho código puede consultarse en este [repositorio de GitHub](https://github.c
 
 **Características de audio y unidades**
 
-Las características de audio usadas en este Dashboard son las siguientes:
+Las características de audio usadas en este Dashboard son las siguientes y la traducción al Español usada se indica en los paréntesis:
 
-- **Loudness (Sonoridad):** Está medida en decibelios relativos a escala completa (dBFS), lo que indica qué tan amplificado está el audio. Los valores normales son abajo de 0, de lo contrario suele ocurrir saturación y distorsión en el audio.
+- **Loudness (`r loudness.es`):** Está medida en decibelios relativos a escala completa (dBFS), lo que indica qué tan amplificado está el audio. Los valores normales son abajo de 0, de lo contrario suele ocurrir saturación y distorsión en el audio.
 
-Las siguientes están entre 0 y 1
+Las siguientes están entre 0 y 1, y no tienen unidades
 
-- **Acousticness (Acústica):** Intervalo que muestra qué tan acústica es una canción, valores cercanos a 0 es poco mientras que cercanos a 1 es mucho.
-- **Danceability (Bailable):** Indicador calculado en base a propiedades como el tempo, estabilidad del ritmo, regularidad. Cercano a 0 indica que la canción es poco bailable mientras que cercano a 1 lo es mucho.
-- **Energy (Energía):** Intervalo que muestra qué tan energética se siente una canción, basado en propiedades como rango dinámico o el timbre. El valor cercano a 0 se asocia a canciones no muy ruidosas, mientras que cercano a 1 es ruidosa.
-- **Instrumentalness (Instrumental):** Indica si una canción sea instrumental, es decir si el valor es cercano a 1 es muy probable que sea instrumental mientras que cercano a 0 debe tener mucho contenido cantado.
-- **Liveness (En Vivo):** Indicador que se calcula en base a la detección de audiencia en la canción, si es cercano a 1 es muy probable que la grabación fue hecha en vivo.
-- **Valence (Valencia):** Medida que representa la sencación de positivo o negativo de una canción. Un valor cercano a 1 indica un sonido positivo (alegre, animador) mientras que cercano a 0 se asocia a un sonido más negativo (deprimente, furioso).
+- **Acousticness (`r acousticness.es`):** Intervalo que muestra qué tan acústica es una canción, valores cercanos a 0 es poco mientras que cercanos a 1 es mucho.
+- **Danceability (`r danceability.es`):** Indicador calculado en base a propiedades como el tempo, estabilidad del ritmo, regularidad. Cercano a 0 indica que la canción es poco bailable mientras que cercano a 1 lo es mucho.
+- **Energy (`r energy.es`):** Intervalo que muestra qué tan energética se siente una canción, basado en propiedades como rango dinámico o el timbre. El valor cercano a 0 se asocia a canciones no muy ruidosas, mientras que cercano a 1 es ruidosa.
+- **Instrumentalness (`r instrumentalness.es`):** Indica si una canción sea instrumental, es decir si el valor es cercano a 1 es muy probable que sea instrumental mientras que cercano a 0 debe tener mucho contenido cantado.
+- **Liveness (`r liveness.es`):** Indicador que se calcula en base a la detección de audiencia en la canción, si es cercano a 1 es muy probable que la grabación fue hecha en vivo.
+- **Valence (`r valence.es`):** Medida que representa la sencación de positivo o negativo de una canción. Un valor cercano a 1 indica un sonido positivo (alegre, animador) mientras que cercano a 0 se asocia a un sonido más negativo (deprimente, furioso).
 
 Estas y otras características de audio pueden consultarse con más detalle en la [documentación de la API Web de Spotify](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features){target="_blank"}.
 
----
+***
 
 DISCLAIMER: La autoría y crédito de los datos son de Spotify y sus respectivos dueños. Aquí simplemente se hizo un Análisis Exploratorio, a los datos consultados de la API Web de Spotify, con propósitos ilustrativos y didácticos.
+
+***
 
 MIT License
 
