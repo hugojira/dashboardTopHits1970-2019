@@ -1,8 +1,8 @@
 ---
-title: "Spotify Top Hits of 1970-2019"
+title: "Top Hits of 1970-2019"
 output: 
   flexdashboard::flex_dashboard:
-    theme: cosmo
+    theme: spacelab
     #orientation: rows
     vertical_layout: fill
     social: [ "menu" ]
@@ -48,10 +48,10 @@ gauge(
   min = round(min(topHits.df$loudness)),
   max = round(max(topHits.df$loudness)) + 5,
   sectors = gaugeSectors(
-               success = NULL,
-               warning = NULL,
+               success = c(round(min(topHits.df$loudness)), 0),
+               warning = c(0, round(max(topHits.df$loudness)) + 5),
                danger = NULL,
-               colors = c("success", "warning", "danger")),
+               colors = c("lightgreen", "lightred", "danger")),
   symbol = " dB",
   label = NULL,
   abbreviate = TRUE,
@@ -72,10 +72,10 @@ gauge(
   min = 0,
   max = 1,
   sectors = gaugeSectors(
-               success = NULL,
-               warning = NULL,
+               success = c(0.5,1),
+               warning = c(0,0.5),
                danger = NULL,
-               colors = c("success", "warning", "danger")),
+               colors = c("lightgreen", "lightred", "danger")),
   symbol = NULL,
   label = NULL,
   abbreviate = TRUE,
@@ -109,7 +109,7 @@ fig.1 <- plot_ly(data = years.loudness.avg, x = ~ playlist_name, y = ~ avg,
                  mode = "lines+markers+text",
                  hovertemplate = paste('Año: %{x}',
                         '<br>Promedio: %{y}<br>',
-                        '<b>hover 3</b><extra></extra>')
+                        '<extra></extra>')
                  ) 
 fig.1 %>% 
   plotly::layout(title = "",
@@ -133,15 +133,15 @@ years.valence.avg <- topHits.df %>%
 fig.2 <- plot_ly(data = years.valence.avg, x = ~ playlist_name, y = ~ avg,
                  type = "scatter",
                  mode = "lines+markers+text",
-                 hovertemplate = paste('hover 1',
-                        '<br>hover 2<br>',
-                        '<b>hover 3</b><extra></extra>')
+                 hovertemplate = paste('Año: %{x}',
+                        '<br>Promedio: %{y}<br>',
+                        '<extra></extra>')
                  ) 
 
 fig.2 %>% 
   plotly::layout(title = "",
          xaxis = list(title = "Años"),
-         yaxis = list (title = "Valencia"))
+         yaxis = list (title = "Valence"))
 
 
 ```
@@ -156,10 +156,11 @@ Column {data-width=200 .sidebar}
 ----------------------------
 
 ```{r}
-sliderInput("year", label = "Selecciona el año:",
+# a slider to select the year
+sliderInput("year", label = "Seleccionar año:",
             min = 1970, max = 2019, value = 1984, step = 1)
 
-# a reactive dataframe
+# a reactive dataframe that selects the year
 reactive.Hits.year <- reactive(
   topHits.df %>% 
   mutate(playlist_name = as.character( parse_number(playlist_name) )) %>%
@@ -182,10 +183,10 @@ gauge(
   min = round(min(reactive.Hits.year()$loudness)),
   max = round(max(reactive.Hits.year()$loudness)) + 5,
   sectors = gaugeSectors(
-               success = NULL,
-               warning = NULL,
+               success = c(round(min(topHits.df$loudness)), 0),
+               warning = c(0, round(max(topHits.df$loudness)) + 5),
                danger = NULL,
-               colors = c("success", "warning", "danger")),
+               colors = c("lightgreen", "lightred", "danger")),
   symbol = " dB",
   label = NULL,
   abbreviate = TRUE,
@@ -205,10 +206,10 @@ gauge(
   min = 0,
   max = 1,
   sectors = gaugeSectors(
-               success = NULL,
-               warning = NULL,
+               success = c(0.5,1),
+               warning = c(0,0.5),
                danger = NULL,
-               colors = c("success", "warning", "danger")),
+               colors = c("lightgreen", "lightred", "danger")),
   symbol = "",
   label = NULL,
   abbreviate = TRUE,
@@ -268,7 +269,7 @@ renderPlotly(
   textposition = 'auto',
   hovertemplate = paste('<b>Canción</b>: %{y}',
                         '<br><b>Popularidad:</b>: %{x}<br>',
-                        '<b>Artista:%{text}</b>'),
+                        '<extra></extra>'),
   name = "",
   type = "bar", 
   orientation = "h"
@@ -318,7 +319,9 @@ renderPlotly(
          ) %>%
   plotly::layout(
         showlegend = FALSE
-  )
+  ) %>%
+  plotly::layout(xaxis = list(autorange = TRUE),
+         yaxis = list(autorange = TRUE))
 
 
 )
@@ -353,26 +356,26 @@ Acerca De
 
 En este dashboard se utilizan características de audio de canciones, las cuales provienen de las playlists de Spotify de la forma "Top Hits of AAAA", donde AAAA es el año. La intensión es ver cómo fueron cambiando dichas propiedades desde el año 1970 hasta el 2019.
 
-Los datos se obtuvieron de la [API de Spotify](https://developer.spotify.com/documentation/web-api/), mediante código R usando el Wrapper [Spotifyr](https://www.rcharlie.com/spotifyr/). Se descargaron a la fecha (año/mes/día) `r data.download.date`.
+Los datos se obtuvieron de la [API de Spotify](https://developer.spotify.com/documentation/web-api/){target="_blank"}, mediante código R usando el Wrapper [Spotifyr](https://www.rcharlie.com/spotifyr/){target="_blank"}. Se descargaron a la fecha (año/mes/día) `r data.download.date`.
 
-Dicho código puede consultarse en este [repositorio de GitHub](https://github.com/hugojira/TopHits1970-2019) así como más información sobre la estructura de los datos. Es replicable para descargar los datos de nuevo.
+Dicho código puede consultarse en este [repositorio de GitHub](https://github.com/hugojira/TopHits1970-2019){target="_blank"} así como más información sobre la estructura de los datos. Es replicable para descargar los datos de nuevo.
 
 **Características de audio y unidades**
 
 Las características de audio usadas en este Dashboard son las siguientes:
 
-- **Loudness:** Está medida en decibelios relativos a escala completa (dBFS), lo que indica qué tan amplificado está el audio. Los valores normales son abajo de 0, de lo contrario suele ocurrir saturación y distorsión en el audio.
+- **Loudness (Sonoridad):** Está medida en decibelios relativos a escala completa (dBFS), lo que indica qué tan amplificado está el audio. Los valores normales son abajo de 0, de lo contrario suele ocurrir saturación y distorsión en el audio.
 
 Las siguientes están entre 0 y 1
 
-- **Acousticness:** Intervalo que muestra qué tan acústica es una canción, valores cercanos a 0 es poco mientras que cercanos a 1 es mucho.
-- **Danceability:** Indicador calculado en base a propiedades como el tempo, estabilidad del ritmo, regularidad. Cercano a 0 indica que la canción es poco bailable mientras que cercano a 1 lo es mucho.
-- **Energy:** Intervalo que muestra qué tan energética se siente una canción, basado en propiedades como rango dinámico o el timbre. El valor cercano a 0 se asocia a canciones no muy ruidosas, mientras que cercano a 1 es ruidosa.
-- **Instrumentalness:** Indica si una canción sea instrumental, es decir si el valor es cercano a 1 es muy probable que sea instrumental mientras que cercano a 0 debe tener mucho contenido cantado.
-- **Liveness:** Indicador que se calcula en base a la detección de audiencia en la canción, si es cercano a 1 es muy probable que la grabación fue hecha en vivo.
-- **Valence:** Medida que representa la sencación de positivo o negativo de una canción. Un valor cercano a 1 indica un sonido positivo (alegre, animador) mientras que cercano a 0 se asocia a un sonido más negativo (deprimente, furioso).
+- **Acousticness (Acústica):** Intervalo que muestra qué tan acústica es una canción, valores cercanos a 0 es poco mientras que cercanos a 1 es mucho.
+- **Danceability (Bailable):** Indicador calculado en base a propiedades como el tempo, estabilidad del ritmo, regularidad. Cercano a 0 indica que la canción es poco bailable mientras que cercano a 1 lo es mucho.
+- **Energy (Energía):** Intervalo que muestra qué tan energética se siente una canción, basado en propiedades como rango dinámico o el timbre. El valor cercano a 0 se asocia a canciones no muy ruidosas, mientras que cercano a 1 es ruidosa.
+- **Instrumentalness (Instrumental):** Indica si una canción sea instrumental, es decir si el valor es cercano a 1 es muy probable que sea instrumental mientras que cercano a 0 debe tener mucho contenido cantado.
+- **Liveness (En Vivo):** Indicador que se calcula en base a la detección de audiencia en la canción, si es cercano a 1 es muy probable que la grabación fue hecha en vivo.
+- **Valence (Valencia):** Medida que representa la sencación de positivo o negativo de una canción. Un valor cercano a 1 indica un sonido positivo (alegre, animador) mientras que cercano a 0 se asocia a un sonido más negativo (deprimente, furioso).
 
-Estas y otras características de audio pueden consultarse con más detalle en la [documentación de la API Web de Spotify](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features).
+Estas y otras características de audio pueden consultarse con más detalle en la [documentación de la API Web de Spotify](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features){target="_blank"}.
 
 ---
 
