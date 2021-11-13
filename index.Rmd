@@ -368,7 +368,7 @@ Acerca De
 ============================
 **Datos**
 
-En este dashboard se utilizan características de audio de canciones, las cuales provienen de las playlists de Spotify de la forma "Top Hits of AAAA", donde AAAA es el año. La intensión es ver cómo fueron cambiando dichas propiedades desde el año 1970 hasta el 2019.
+En este dashboard se utilizan características de audio de canciones, las cuales provienen de las playlists de Spotify de la forma "Top Hits of AAAA", donde AAAA es el año. El propósito es ver cómo fueron cambiando dichas propiedades desde el año 1970 hasta el 2019.
 
 Los datos se obtuvieron de la [API de Spotify](https://developer.spotify.com/documentation/web-api/){target="_blank"}, mediante código R usando el Wrapper [Spotifyr](https://www.rcharlie.com/spotifyr/){target="_blank"}. Se descargaron a la fecha (año/mes/día) `r data.download.date`.
 
